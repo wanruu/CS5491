@@ -21,8 +21,8 @@ fc_paras = [(s * s * 512, 4096), (4096, 4096)]
 def main():
     data = CUB_200_2011('cub', train=True)
     device = get_device()
-    evaluator = evalMatrix(clses=classNumber, device=device)
-    # evaluator.record()
+    train_evaluator = evalMatrix(clses=classNumber, device=device)
+    test_evaluator = evalMatrix(clses=classNumber, device=device)
     log = Log(LogPath + 'record.csv', model_name='cnn')
 
     # -----------------
@@ -30,7 +30,7 @@ def main():
     # vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
     testmodel = Testmodel()
 
-    train(testmodel, data, evaluator=evaluator, log=log)
+    train(testmodel, data, evaluator=train_evaluator, log=log)
 
     # -----------------
 

@@ -92,3 +92,20 @@ def count_parameters(model):
 
 def get_device():
     return 'cuda:0' if torch.cuda.is_available() else 'cpu'
+
+
+def score(state, evaluater, epoch=-1, loss=-1.):
+    acc, recall, pre, f1, kappa = evaluater.analysis()
+    if state is 'test':
+        print('|acc       : {}%'.format(acc * 100))
+        print('|recall    : {}'.format(recall))
+        print('|precision : {}'.format(pre))
+        print('|f1        : {}'.format(f1))
+        print('|kappa     : {}'.format(kappa))
+    else:
+        print('|epoch     : {}    '.format(epoch) + state + ' loss: {}'.format(loss))
+        print('|acc       : {}%'.format(acc * 100))
+        print('|recall    : {}'.format(recall))
+        print('|precision : {}'.format(pre))
+        print('|f1        : {}'.format(f1))
+        print('|kappa     : {}'.format(kappa))
