@@ -8,8 +8,16 @@ import torch
 
 
 def box(img, mask):
+    if len(img.shape) == 2:
+        new_img = np.zeros((img.shape[0], img.shape[1], 3))
+        for i in range(3):
+            new_img[:, :, i] = img
+        img = new_img
+    if len(mask.shape) == 3:
+        mask = mask[:, :, 0]
+
     maskimg = cv.bitwise_and(src1=img, src2=img, mask=mask)
-    print(maskimg.shape)
+    # print(maskimg.shape)
     sub_img = np.where(maskimg > 0)
     final = maskimg[min(sub_img[0]):max(sub_img[0]), min(sub_img[1]):max(sub_img[1]), :]
     return final
