@@ -27,6 +27,6 @@ fc_paras = [(s * s * 512, 1024), (1024, 1024)]
 
 
 vgg16 = VGG16(CLASS_NUM, conv_paras, pool_paras, fc_paras)
-train(vgg16, train_data, epochs=1, batch_size=BATCH_SIZE, learning_rate=0.01, loss_func=None, optimizer=None)
+train(vgg16, train_data, epochs=300, batch_size=BATCH_SIZE, learning_rate=0.01, loss_func=None, optimizer=None)
 
 
