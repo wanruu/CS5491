@@ -1,6 +1,19 @@
 from model import VGG16
 from train import train
-from data import CUB_200_2011
+from data import MyDataset
+from torch.utils.data import DataLoader
+
+
+BATCH_SIZE = 64
+CLASS_NUM = 200
+
+# load data
+print("Loading data...")
+train_data = MyDataset(train=True)
+test_data = MyDataset(train=False)
+# train_dataloader = DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
+# test_dataloader = DataLoader(dataset=test_data, batch_size=BATCH_SIZE, shuffle=False)
+
 
 # hyper parameters
 conv_paras = [
@@ -12,21 +25,10 @@ conv_paras = [
 ]
 pool_paras = [(2, 2) for _ in range(5)]  # 2^5 = 32
 s = int(384 / 32)
-fc_paras = [(s * s * 512, 4096), (4096, 4096)]
+fc_paras = [(s * s * 512, 1024), (1024, 1024)]
 
 
-def main():
-    data = CUB_200_2011('cub', train=True)[0:100]
-    # for i in range(2568, len(data)):
-    #     print(i, data[i][0].shape, data[i][1].shape)
-
-    print(data[748][0].shape, data[748][1].shape)
-    print(data[749][0].shape, data[749][1].shape)
-    print(data[750][0].shape, data[750][1].shape)
-    print(data[2568][0].shape, data[2568][1].shape)
-    vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
-    train(vgg16, data)
+vgg16 = VGG16(CLASS_NUM, conv_paras, pool_paras, fc_paras)
+train(vgg16, train_data, epochs=1, batch_size=BATCH_SIZE, learning_rate=0.01, loss_func=None, optimizer=None)
 
 
-if __name__ == '__main__':
-    main()

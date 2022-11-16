@@ -3,7 +3,7 @@ import torch.nn as nn
 
 def conv_relu_layer(in_chann, out_chann, kernerl_size, padding):
     return nn.Sequential(
-        nn.Conv2d(in_chann, out_chann, kernerl_size, padding), 
+        nn.Conv2d(in_chann, out_chann, kernerl_size, padding=padding), 
         nn.BatchNorm2d(out_chann), 
         nn.ReLU()
     )
@@ -36,18 +36,25 @@ class VGG16(nn.Module):
         final_layer = nn.Linear(fc_paras[-1][1], class_num)
 
         # Connect layers
-        self.layers = nn.Sequential(
-            conv_layers[0], conv_layers[1], pool_layers[0],
-            conv_layers[2], conv_layers[3], pool_layers[1],
-            conv_layers[4], conv_layers[5], conv_layers[6], pool_layers[2],
-            conv_layers[7], conv_layers[8], conv_layers[9], pool_layers[3],
-            conv_layers[10], conv_layers[11], conv_layers[12], pool_layers[4],
-            fc_layers[0], fc_layers[1],
-            final_layer
-        )
+        self.layer1 = nn.Sequential(conv_layers[0], conv_layers[1], pool_layers[0])
+        self.layer2 = nn.Sequential(conv_layers[2], conv_layers[3], pool_layers[1])
+        self.layer3 = nn.Sequential(conv_layers[4], conv_layers[5], conv_layers[6], pool_layers[2])
+        self.layer4 = nn.Sequential(conv_layers[7], conv_layers[8], conv_layers[9], pool_layers[3])
+        self.layer5 = nn.Sequential(conv_layers[10], conv_layers[11], conv_layers[12], pool_layers[4])
+        self.layer6 = nn.Sequential(fc_layers[0], fc_layers[1])
+        self.layer7 = final_layer
+
 
     def forward(self, x):
-        return self.layers(x)
+        output = self.layer1(x)
+        output = self.layer2(output)
+        output = self.layer3(output)
+        output = self.layer4(output)
+        output = self.layer5(output)
+        output = output.view(output.size(0), -1)
+        output = self.layer6(output)
+        output = self.layer7(output)
+        return output
 
 
 
