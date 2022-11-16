@@ -31,6 +31,7 @@ def main():
 
     # vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
     testmodel = Testmodel(class_num=classNumber)
+    count_parameters(testmodel)
 
     train(testmodel, train_data, evaluator=train_evaluator, log=log)
     test(model=testmodel, dataset=test_data, device=device, batch_size=64, test_evaluater=test_evaluator, log=log)

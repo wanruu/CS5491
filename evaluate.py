@@ -19,10 +19,7 @@ class evalMatrix:
 
     def record(self, out, y):
         pred = torch.argmax(out, dim=1)
-        # print(pred)
-        # y = y.T.squeeze()
         for i in range(len(pred)):
-            # print(pred[i],y[i])
             self.Matrix[y[i].item() - 1][max(0, pred[i].item() - 1)] += 1
 
     def clear(self):
