@@ -3,8 +3,8 @@ import torch.nn as nn
 
 def conv_relu_layer(in_chann, out_chann, kernerl_size, padding):
     return nn.Sequential(
-        nn.Conv2d(in_chann, out_chann, kernerl_size, padding), 
-        nn.BatchNorm2d(out_chann), 
+        nn.Conv2d(in_chann, out_chann, kernerl_size, padding),
+        nn.BatchNorm2d(out_chann),
         nn.ReLU()
     )
 
@@ -25,7 +25,7 @@ class VGG16(nn.Module):
         fc_paras: a length-2 list of tuple for fully connection layer. Each tuple is (in_chann, out_chann) 
         """
         super().__init__()
-        
+
         # Convolution + ReLU layer
         conv_layers = [conv_relu_layer(a, b, c, d) for a, b, c, d in conv_paras]
         # Pooling + ReLU layer
@@ -55,20 +55,11 @@ class Testmodel(nn.Module):
     def __init__(self):
         super(Testmodel, self).__init__()
         self.Flatten = nn.Flatten()
-        self.Linear = nn.Linear(384*384*3, 200)
+        self.Linear = nn.Linear(384 * 384 * 3, 200)
         self.Softmax = nn.Softmax()
-
 
     def forward(self, x):
         x = self.Flatten(x)
         x = self.Linear(x)
         x = self.Softmax(x)
         return x
-
-
-
-
-
-
-
-
