@@ -19,7 +19,7 @@ class evalMatrix:
 
     def record(self, out, y):
         pred = torch.argmax(out, dim=1)
-        print(pred)
+        # print(pred)
         # y = y.T.squeeze()
         for i in range(len(pred)):
             # print(pred[i],y[i])

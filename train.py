@@ -57,10 +57,10 @@ def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu'
             optimizer.step()
             # statistics
             total_loss += loss.data
-        print('avg_loss:', {total_loss / (epoch + 1)})
+        print('avg_loss:', float(total_loss) / (len(dataloader)))
 
         if evaluator is not None and log is not None:
-            log.record(epoch=epoch, evaluator=evaluator, loss=total_loss / len(dataloader), state='train',
+            log.record(epoch=epoch, evaluator=evaluator, loss=float(total_loss) / len(dataloader), state='train',
                        auto_write=True)
 
         if total_loss < best_loss:
