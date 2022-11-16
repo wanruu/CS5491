@@ -1,5 +1,6 @@
 from model import VGG16, Testmodel
 from train import train
+from test import test
 from utils import count_parameters, Log, get_device
 from evaluate import evalMatrix
 from data import CUB_200_2011
@@ -19,7 +20,8 @@ fc_paras = [(s * s * 512, 4096), (4096, 4096)]
 
 
 def main():
-    data = CUB_200_2011('cub', train=True)
+    train_data = CUB_200_2011('cub', train=True)
+    test_data = CUB_200_2011('cub', train=False)
     device = get_device()
     train_evaluator = evalMatrix(clses=classNumber, device=device)
     test_evaluator = evalMatrix(clses=classNumber, device=device)
@@ -30,7 +32,8 @@ def main():
     # vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
     testmodel = Testmodel()
 
-    train(testmodel, data, evaluator=train_evaluator, log=log)
+    train(testmodel, train_data, evaluator=train_evaluator, log=log)
+    test(model=testmodel, dataset=test_data, device=device, batch_size=64, test_evaluater=test_evaluator, log=log)
 
     # -----------------
 
