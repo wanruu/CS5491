@@ -11,8 +11,6 @@ CLASS_NUM = 200
 print("Loading data...")
 train_data = MyDataset(train=True)
 test_data = MyDataset(train=False)
-# train_dataloader = DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
-# test_dataloader = DataLoader(dataset=test_data, batch_size=BATCH_SIZE, shuffle=False)
 
 
 # hyper parameters

@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 
 
-def train(model, data, epochs=30, batch_size=64, learning_rate=0.01, loss_func=None, optimizer=None):
+def train(model, data, epochs=300, batch_size=64, learning_rate=0.01, loss_func=None, optimizer=None):
     """
     model: nn model
     data: each item is a tuple (image, label)
@@ -45,4 +45,5 @@ def train(model, data, epochs=30, batch_size=64, learning_rate=0.01, loss_func=N
         print(f"loss: {total_loss}")
         scheduler.step(total_loss)
 
+    torch.save(model, "vgg16.pkl")
 
