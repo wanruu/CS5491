@@ -7,7 +7,9 @@ import cv2 as cv
 
 class CUB_200_2011(Dataset):
 
+
     def __init__(self, dataSetName, train=True, path=DataPath, shape=(384, 384)):
+        super(CUB_200_2011, self).__init__()
         self.dataSetName = dataSetName
         self._FOR_TRAIN = train
         self._shape = shape
@@ -43,8 +45,14 @@ class CUB_200_2011(Dataset):
     def __len__(self):
         return len(self.data_label)
 
+    def fuck(self, index):
+        data, label = self.__getitem__(index)
+        # 60.0 27.0 325.0 304.0
+        cv.imshow(data[60:])
+
 
 if __name__ == '__main__':
-    data = CUB_200_2011(dataSetName='cub')
-    data_, label = data[0]
-    print(data.data_path[0])
+    cub = CUB_200_2011(dataSetName='cub')
+    data_, label = cub[0]
+    cub.fuck(0)
+    # print(data.data_path[0])
