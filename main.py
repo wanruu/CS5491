@@ -1,6 +1,6 @@
 from model import VGG16
-from train import training
-
+from train import train
+from data import CUB_200_2011
 
 # hyper parameters
 conv_paras = [
@@ -12,12 +12,21 @@ conv_paras = [
 ]
 pool_paras = [(2, 2) for _ in range(5)]  # 2^5 = 32
 s = int(384 / 32)
-fc_paras = [(s*s*512, 4096), (4096, 4096)]
-
-
-vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
+fc_paras = [(s * s * 512, 4096), (4096, 4096)]
 
 
 # TODO: import data
-data = []
-training(vgg16, data)
+
+def main():
+    data = CUB_200_2011('cub', train=True)
+    # for i in range(len(data)):
+    #     print(i, data[i][0].shape, data[i][1].shape)
+
+
+    print(data[748][0].shape, data[748][1].shape)
+    # vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
+    # train(vgg16, data)
+
+
+if __name__ == '__main__':
+    main()

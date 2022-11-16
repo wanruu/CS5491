@@ -1,9 +1,12 @@
 import torch
 import torch.nn as nn
+import tqdm
 from torch.utils.data import DataLoader
 
 
-def training(model, data, epochs=1, batch_size=64, learning_rate=0.01, loss_func=None):
+def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, loss_func=None, optimizer=None, evaluate=None,
+             log=None):
+
     """
     model: nn model
     data: each item is a tuple (image, label)
@@ -11,40 +14,45 @@ def training(model, data, epochs=1, batch_size=64, learning_rate=0.01, loss_func
     batch_size: int
     learning_rate: float
     """
+
     # Prepare parameter
     if not loss_func:
         loss_func = nn.CrossEntropyLoss()
 
     # Split data into batches
-    dataloader = DataLoader(data, batch_size, shuffle=True)
+    dataloader = DataLoader(data, batch_size, shuffle=True, drop_last=True)
 
     # Optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  # TODO: can try different optimizer
+    if optimizer is None:
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  # TODO: can try different optimizer
 
     # scheduler
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
 
     # Start training
     for epoch in range(epochs):
-        print("="*10, "Epoch", epoch, "="*10)
-        
+        print("=" * 10, "Epoch", epoch, "=" * 10)
         total_loss = 0
-        for idx, data in enumerate(dataloader):
-            # get data
-            images, labels = data
-            # zero the gradients
-            optimizer.zero_grad()
-            # forward
-            outputs = model(images)
-            labels = torch.flatten(labels)
-            loss = loss_func(outputs, labels)
-            # backward
-            loss.backward()
-            # optimize
-            optimizer.step()
-            # statistics
-            total_loss += loss.data
-            print(f"loss: {loss}, avg_loss: {total_loss/(idx+1)}")
-
+        print(len(dataloader))
+        # for data, cls in tqdm.tqdm(dataloader):
+        for data, cls in dataloader:
+            print('ok')
+            # print(data.shape)
+            # print(cls.shape)
+            # # get data
+            # # images, labels = data
+            # # zero the gradients
+            # optimizer.zero_grad()
+            # # forward
+            # outputs = model(data)
+            # labels = torch.flatten(cls)
+            # loss = loss_func(outputs, cls)
+            # # backward
+            # loss.backward()
+            # # optimize
+            # optimizer.step()
+            # # statistics
+            # total_loss += loss.data
+            # print(f"loss: {loss}, avg_loss: {total_loss} / {epoch}")
 
         scheduler.step(total_loss)

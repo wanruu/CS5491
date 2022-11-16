@@ -42,10 +42,12 @@ class CUB_200_2011(Dataset):
     def __getitem__(self, item):
         img = imageio.imread(self.path + '/images/' + self.data_path[item])
         mask = imageio.imread(MaskPath + '/' + self.data_path[item][:-3] + 'png')
+        print(img.shape, mask.shape)
         img = box(img, mask)
         img = cv.resize(img, self._shape)
         data = torch.Tensor(img)
         data = rearrange(data, "w h c -> c w h")
+        # print(self.data_label[item])
         return data, torch.LongTensor(self.data_label[item])
 
     def __len__(self):
