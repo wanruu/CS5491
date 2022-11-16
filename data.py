@@ -1,4 +1,8 @@
 import imageio.v2 as imageio
+import numpy as np
+from utils import box
+from einops import rearrange
+
 from configuration import *
 import torch
 from torch.utils.data.dataset import Dataset
@@ -6,7 +10,6 @@ import cv2 as cv
 
 
 class CUB_200_2011(Dataset):
-
 
     def __init__(self, dataSetName, train=True, path=DataPath, shape=(384, 384)):
         super(CUB_200_2011, self).__init__()
@@ -38,21 +41,20 @@ class CUB_200_2011(Dataset):
 
     def __getitem__(self, item):
         img = imageio.imread(self.path + '/images/' + self.data_path[item])
+        mask = imageio.imread(MaskPath + '/' + self.data_path[item][:-3] + 'png')
+        img = box(img, mask)
         img = cv.resize(img, self._shape)
         data = torch.Tensor(img)
+        data = rearrange(data, "w h c -> c w h")
         return data, torch.LongTensor(self.data_label[item])
 
     def __len__(self):
         return len(self.data_label)
 
-    def fuck(self, index):
-        data, label = self.__getitem__(index)
-        # 60.0 27.0 325.0 304.0
-        cv.imshow(data[60:])
-
 
 if __name__ == '__main__':
     cub = CUB_200_2011(dataSetName='cub')
-    data_, label = cub[0]
-    cub.fuck(0)
-    # print(data.data_path[0])
+    data, label = cub[0]
+    # print(data.shape)
+    # cub.fuck(0)
+    # print(cub.data_path[0])
