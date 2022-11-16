@@ -1,5 +1,6 @@
 from model import VGG16
 from train import train
+from utils import count_parameters
 from data import CUB_200_2011
 
 # hyper parameters
@@ -16,15 +17,10 @@ fc_paras = [(s * s * 512, 4096), (4096, 4096)]
 
 
 def main():
-    data = CUB_200_2011('cub', train=True)[0:100]
-    # for i in range(2568, len(data)):
-    #     print(i, data[i][0].shape, data[i][1].shape)
-
-    print(data[748][0].shape, data[748][1].shape)
-    print(data[749][0].shape, data[749][1].shape)
-    print(data[750][0].shape, data[750][1].shape)
-    print(data[2568][0].shape, data[2568][1].shape)
+    data = CUB_200_2011('cub', train=True)
     vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
+    num = count_parameters(vgg16)
+    print(num)
     train(vgg16, data)
 
 

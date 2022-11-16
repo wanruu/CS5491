@@ -82,3 +82,9 @@ class log:
     def write(self):
         self.df_style.to_csv(self.path, index=False)
         print('log succeed!')
+
+
+def count_parameters(model):
+    # 统计一个模型的参数
+    temp = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f'\nThe model has {temp:,} trainable parameters')
