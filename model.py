@@ -52,14 +52,21 @@ class VGG16(nn.Module):
 
 class Testmodel(nn.Module):
 
-    def __init__(self):
+    def __init__(self, class_num, dropout = 0.1):
         super(Testmodel, self).__init__()
         self.Flatten = nn.Flatten()
-        self.Linear = nn.Linear(384 * 384 * 3, 200)
-        self.Softmax = nn.Softmax()
+        self.cnn1 = nn.Sequential(nn.Conv2d(3, 8, (3, 3), stride=(3, 3)), nn.MaxPool2d(2, 2))
+        self.cnn2 = nn.Sequential(nn.Conv2d(8, 16, (3, 3), stride=(3, 3)), nn.Dropout(dropout))
+        self.cnn3 = nn.Sequential(nn.Conv2d(16, 16, (3, 3), stride=(1, 1)), nn.BatchNorm2d(16))
+        self.cnn4 = nn.Sequential(nn.Conv2d(16, 4, (3, 3), stride=(1,1)), nn.Dropout(dropout))
+        self.classify = nn.Sequential(nn.Linear(144, class_num+1), nn.Softmax())
 
     def forward(self, x):
+        # x = self.Flatten(x)
+        x = self.cnn1(x)
+        x = self.cnn2(x)
+        x = self.cnn3(x)
+        x = self.cnn4(x)
         x = self.Flatten(x)
-        x = self.Linear(x)
-        x = self.Softmax(x)
+        x = self.classify(x)
         return x

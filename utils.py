@@ -63,8 +63,8 @@ class Log:
     def print(self):
         print(self.df_style)
 
-    def record(self, epoch, evaluater, loss, state, auto_write=False):
-        r = list(evaluater.analysis())
+    def record(self, epoch, evaluator, loss, state, auto_write=False):
+        r = list(evaluator.analysis())
         self.df_style.iloc[epoch]['epoch'] = epoch
         if state != 'test':
             self.df_style.iloc[epoch][state + '_loss'] = loss
