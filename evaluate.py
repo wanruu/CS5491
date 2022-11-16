@@ -2,7 +2,6 @@ import torch
 import numpy as np
 
 
-
 class evalMatrix:
     def __init__(self, clses, device, Matrix=None):
         if Matrix is None:
@@ -23,7 +22,7 @@ class evalMatrix:
         y = y.T.squeeze()
         for i in range(len(pred)):
             # print(pred[i],y[i])
-            self.Matrix[y[i].item()][pred[i].item()] += 1
+            self.Matrix[y[i].item()-1][pred[i].item()-1] += 1
 
     def clear(self):
         self.Matrix = torch.from_numpy(np.zeros((self.clses, self.clses))).to(self.device)

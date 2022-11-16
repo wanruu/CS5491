@@ -50,6 +50,24 @@ class VGG16(nn.Module):
         return self.layers(x)
 
 
+class Testmodel(nn.Module):
+
+    def __init__(self):
+        super(Testmodel, self).__init__()
+        self.Flatten = nn.Flatten()
+        self.Linear = nn.Linear(384*384*3, 200)
+        self.Softmax = nn.Softmax()
+
+
+    def forward(self, x):
+        x = self.Flatten(x)
+        x = self.Linear(x)
+        x = self.Softmax(x)
+        return x
+
+
+
+
 
 
 

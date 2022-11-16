@@ -34,7 +34,7 @@ def set_seed(seed=0):
     torch.cuda.manual_seed_all(seed)
 
 
-class log:
+class Log:
     def __init__(self, path, model_name, df_style=None):
         self.path = path
         self.model_name = model_name
@@ -88,3 +88,7 @@ def count_parameters(model):
     # 统计一个模型的参数
     temp = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f'\nThe model has {temp:,} trainable parameters')
+
+
+def get_device():
+    return 'cuda:0' if torch.cuda.is_available() else 'cpu'

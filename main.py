@@ -1,7 +1,9 @@
-from model import VGG16
+from model import VGG16, Testmodel
 from train import train
-from utils import count_parameters
+from utils import count_parameters, Log, get_device
+from evaluate import evalMatrix
 from data import CUB_200_2011
+from configuration import *
 
 # hyper parameters
 conv_paras = [
@@ -18,10 +20,19 @@ fc_paras = [(s * s * 512, 4096), (4096, 4096)]
 
 def main():
     data = CUB_200_2011('cub', train=True)
-    vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
-    num = count_parameters(vgg16)
-    print(num)
-    train(vgg16, data)
+    device = get_device()
+    evaluator = evalMatrix(clses=classNumber, device=device)
+    # evaluator.record()
+    log = Log(LogPath + 'record.csv', model_name='cnn')
+
+    # -----------------
+
+    # vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
+    testmodel = Testmodel()
+
+    train(testmodel, data, evaluator=evaluator, log=log)
+
+    # -----------------
 
 
 if __name__ == '__main__':
