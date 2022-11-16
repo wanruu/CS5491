@@ -9,8 +9,8 @@ CLASS_NUM = 200
 
 # load data
 print("Loading data...")
-train_data = MyDataset(train=True)
-test_data = MyDataset(train=False)
+train_data = MyDataset(train=True, img_shape=(192, 192))
+test_data = MyDataset(train=False, img_shape=(192, 192))
 
 
 # hyper parameters
@@ -22,7 +22,7 @@ conv_paras = [
     (512, 512, 3, 1), (512, 512, 3, 1), (512, 512, 3, 1),
 ]
 pool_paras = [(2, 2) for _ in range(5)]  # 2^5 = 32
-s = int(384 / 32)
+s = int(192 / 32)
 fc_paras = [(s * s * 512, 1024), (1024, 1024)]
 
 
