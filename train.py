@@ -8,7 +8,7 @@ from evaluate import evalMatrix
 
 
 def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu', loss_func=None, optimizer=None,
-          evaluator: evalMatrix = None, log=None, save_model='best_model.pt'):
+          evaluator: evalMatrix = None, log=None, num_workers=2, save_model='best_model.pt'):
     """
     model: nn model
     data: each item is a tuple (image, label)
@@ -22,7 +22,7 @@ def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu'
         loss_func = nn.CrossEntropyLoss()
 
     # Split data into batches
-    dataloader = DataLoader(data, batch_size=batch_size, shuffle=True, drop_last=True)
+    dataloader = DataLoader(data, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=num_workers)
 
     # Optimizer
     if optimizer is None:

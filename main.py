@@ -5,6 +5,7 @@ from utils import count_parameters, Log, get_device
 from evaluate import evalMatrix
 from data import CUB_200_2011
 from configuration import *
+import torch.nn as nn
 
 # hyper parameters
 conv_paras = [
@@ -18,22 +19,44 @@ pool_paras = [(2, 2) for _ in range(5)]  # 2^5 = 32
 s = int(384 / 32)
 fc_paras = [(s * s * 512, 4096), (4096, 4096)]
 
+# ------------------------------------------------------------
+# |                  hyper-parameter pool                    |
+# |                                                          |
+
+epochs = 100
+lr = 1e-3
+loss_func = nn.CrossEntropyLoss()
+
+# |                                                          |
+# |                  hyper-parameter pool                    |
+# ------------------------------------------------------------
+
 
 def main():
     train_data = CUB_200_2011('cub', train=True)
     test_data = CUB_200_2011('cub', train=False)
+
+    # ==============================================
+
     device = get_device()
     train_evaluator = evalMatrix(clses=classNumber, device=device)
     test_evaluator = evalMatrix(clses=classNumber, device=device)
     log = Log(LogPath + 'record.csv', model_name='cnn')
 
-    # -----------------
+    # ==============================================
 
     # vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
     testmodel = Testmodel(class_num=classNumber)
     count_parameters(testmodel)
 
-    train(testmodel, train_data, evaluator=train_evaluator, log=log)
+    train(testmodel, train_data,
+          epochs = epochs,
+          learning_rate=lr,
+          device=device,
+          loss_func=loss_func,
+          num_workers=2,
+          evaluator=train_evaluator,
+          log=log)
     test(model=testmodel, dataset=test_data, device=device, batch_size=64, test_evaluater=test_evaluator, log=log)
 
     # -----------------
