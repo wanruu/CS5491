@@ -26,6 +26,7 @@ class EarlyStopping:
             self.flag = True
 
 
+
 def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_func=None, optimizer=None, early_stopping=None,
           use_gpu=False, save_path="/", save_intervals=50):
     """
@@ -43,30 +44,24 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
     return: None
     """
     # Prepare
-    if not loss_func:
-        loss_func = nn.CrossEntropyLoss()
-    if not optimizer:
-        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    if not early_stopping:
-        early_stopping = EarlyStopping(patience=30, min_delta=0)
+    loss_func = loss_func if loss_func else nn.CrossEntropyLoss()
+    optimizer = optimizer if optimizer else torch.optim.Adam(model.parameters(), lr=learning_rate)
+    early_stopping = early_stopping if early_stopping else EarlyStopping(patience=30, min_delta=0)
     model_name = model.name if model.name else "Unnamed"
-
-    # Load data into batches
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=12)
-
-    # Scheduler: to reduce learning rate
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True)
-
-    # Use GPU
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True)  # to reduce learning rate
     if(use_gpu):
         model = model.cuda()
         loss_func = loss_func.cuda()
 
+    # Load data into batches
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=12)    
+
     # Start training by epoch
     for epoch in range(epochs):
         print("=" * 10, "Epoch", epoch, "=" * 10)
-        
+
         total_loss = 0
+        top1_correct, total = 0, 0
         for data, labels in tqdm(dataloader):
             # Use GPU
             if(use_gpu):
@@ -76,7 +71,7 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
             optimizer.zero_grad()
             # Forward
             outputs = model(data)
-            labels = torch.flatten(labels) - 1
+            labels = torch.flatten(labels) - 1  # [200]
             loss = loss_func(outputs, labels)
             # Backward
             loss.backward()
@@ -84,8 +79,11 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
             optimizer.step()
             # Statistics
             total_loss += loss.data
+            _, top1 = torch.max(outputs.data, 1)
+            top1_correct += (top1 == labels).sum()
+            total += labels.size(0)
         
-        print(f"loss: {total_loss}")
+        print(f"loss: {total_loss}, accuracy: {top1_correct/total*100}%")
         scheduler.step(total_loss)
 
         # Early stopping
@@ -104,3 +102,4 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
     if use_gpu:
         model = model.cpu()
     torch.save(model, f"{save_path}/{model_name}.pkl")
+

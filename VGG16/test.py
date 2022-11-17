@@ -61,12 +61,12 @@ if __name__ == "__main__":
     
     # Get data
     print("Initializing dataset...")
-    dataset = MyDataset(train=False, img_shape=(192, 192), path="../../CUB_200_2011/CUB_200_2011/")
+    dataset = MyDataset(train=True, img_shape=(192, 192), path="../../CUB_200_2011/CUB_200_2011/")
     
     # Testing
-    test(args.path, dataset, batch_size=args.batch_size, use_gpu=torch.cuda.is_available())
+    # test(args.path, dataset, batch_size=args.batch_size, use_gpu=torch.cuda.is_available())
     
-    # for i in range(1,100,10):
-    #     print(f"============= {i} =============")
-    #     path = f"checkpoint/VGG16-epoch={i}.pkl"
-    #     test(path, dataset, batch_size=32, use_gpu=True)
+    for i in range(1,50,5):
+        print(f"============= {i} =============")
+        path = f"checkpoint/aug_attempt1/VGG16-epoch={i}.pkl"
+        test(path, dataset, batch_size=32, use_gpu=True)
