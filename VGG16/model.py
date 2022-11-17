@@ -20,11 +20,12 @@ def fc_relu_layer(in_chann, out_chann):
 class VGG16(nn.Module):
     def __init__(self, class_num, conv_paras, pool_paras, fc_paras):
         """
-        conv_paras: a length-13 list of tuple for convolution layer. Each tuple is (in_chann, out_chann, kernerl_size, padding)
-        pool_paras: a length-5 list of tuple for max-pooling layer. Each tuple is (kernel_size, stride)
-        fc_paras: a length-2 list of tuple for fully connection layer. Each tuple is (in_chann, out_chann) 
+        params conv_paras: a length-13 list of tuple for convolution layer. Each tuple is (in_chann, out_chann, kernerl_size, padding)
+        params pool_paras: a length-5 list of tuple for max-pooling layer. Each tuple is (kernel_size, stride)
+        params fc_paras  : a length-2 list of tuple for fully connection layer. Each tuple is (in_chann, out_chann)
         """
         super().__init__()
+        self.name = "VGG16"
         
         # Convolution + ReLU layer
         conv_layers = [conv_relu_layer(a, b, c, d) for a, b, c, d in conv_paras]
@@ -51,13 +52,7 @@ class VGG16(nn.Module):
         output = self.layer3(output)
         output = self.layer4(output)
         output = self.layer5(output)
-        output = output.view(output.size(0), -1)
+        output = output.view(output.size(0), -1)  # resize
         output = self.layer6(output)
         output = self.layer7(output)
         return output
-
-
-
-
-
-

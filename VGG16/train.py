@@ -1,57 +1,108 @@
-from tqdm import tqdm
 import torch
 import torch.nn as nn
+from tqdm import tqdm
 from torch.utils.data import DataLoader
 
-use_gpu = torch.cuda.is_available()
 
-def train(model, data, epochs=300, batch_size=64, learning_rate=0.01, loss_func=None, optimizer=None):
-    """
-    model: nn model
-    data: each item is a tuple (image, label)
-    epochs: int
-    batch_size: int
-    learning_rate: float
-    """
+class EarlyStopping:
+    def __init__(self, patience=30, min_delta=0):
+        """
+        params patience : early stop only if epoches of no improvement >= patience.
+        params min_delta: an absolute change of less than min_delta, will count as no improvement.
+        """
+        self.patience = patience
+        self.min_delta = min_delta
+        self.min_loss = float("inf")
+        self.cnt = 0
+        self.flag = False
 
-    # Prepare parameter
+    def __call__(self, loss):
+        if (self.min_loss - loss) < self.min_delta:
+            self.cnt += 1
+        else:
+            self.min_loss = loss
+            self.cnt = 0
+        if self.cnt >= self.patience:
+            self.flag = True
+
+
+# TODO: add validation
+def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_func=None, optimizer=None, early_stopping=None,
+          use_gpu=False, save_path="/", save_intervals=50):
+    """
+    params model         : nn model
+    params dataset       : type of MyDataset
+    params epochs        : int
+    params batch_size    : int
+    params learning_rate : float
+    params loss_func     : function to calculate loss
+    params optimizer     : 
+    params early_stopping: 
+    params use_gpu       : True/False
+    params save_path     : 
+    params save_intervals: save model every _ epoches
+    return: None
+    """
+    print("Start training...")
+
+    # Prepare
     if not loss_func:
         loss_func = nn.CrossEntropyLoss()
     if not optimizer:
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    if not early_stopping:
+        early_stopping = EarlyStopping(patience=30, min_delta=0)
+    model_name = model.name if model.name else "NN"
 
     # Load data into batches
-    dataloader = DataLoader(data, batch_size=batch_size, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=12)
 
-    # scheduler
+    # Scheduler: to reduce learning rate
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
-    
+
+    # Use GPU
     if(use_gpu):
         model = model.cuda()
         loss_func = loss_func.cuda()
 
-    # Start training
+    # Start training by epoch
     for epoch in range(epochs):
         print("=" * 10, "Epoch", epoch, "=" * 10)
+        
         total_loss = 0
-        for data, label in tqdm(dataloader):
+        for data, labels in tqdm(dataloader):
+            # Use GPU
             if(use_gpu):
                 data = data.cuda()
-                label = label.cuda()
-            # zero the gradients
+                labels = labels.cuda()
+            # Zero the gradients
             optimizer.zero_grad()
-            # forward
+            # Forward
             outputs = model(data)
-            label = torch.flatten(label) - 1
-            loss = loss_func(outputs, label)
-            # backward
+            labels = torch.flatten(labels) - 1
+            loss = loss_func(outputs, labels)
+            # Backward
             loss.backward()
-            # optimize
+            # Optimize
             optimizer.step()
-            # statistics
+            # Statistics
             total_loss += loss.data
+        
         print(f"loss: {total_loss}")
         scheduler.step(total_loss)
 
-    torch.save(model, "vgg16.pkl")
+        # Early stopping
+        early_stopping(total_loss)
+        if early_stopping.flag:
+            print(f"Early stop at epoch {epoch}")
+            break
 
+        # Save model every {save_intervals} epoch
+        if epoch % save_intervals == 1:
+            print("Saving model...")
+            torch.save(model, f"{save_path}/{model_name}-epoch={epoch}.pkl")
+
+    # Save final model
+    if use_gpu:
+        model = model.cpu()
+    torch.save(model, f"{save_path}/{model_name}.pkl")
