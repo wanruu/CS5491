@@ -25,7 +25,7 @@ def train(model, train_data, val_data, epochs=3, batch_size=64, learning_rate=0.
     # Split data into batches
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, drop_last=True,
                                   num_workers=num_workers)
-    val_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, drop_last=True,
+    val_dataloader = DataLoader(val_data, batch_size=batch_size, shuffle=True, drop_last=True,
                                 num_workers=num_workers)
 
     # Optimizer
@@ -38,7 +38,7 @@ def train(model, train_data, val_data, epochs=3, batch_size=64, learning_rate=0.
     model.to(device)
 
     # Start training
-    best_loss = np.inf
+    best_acc = -1
     for epoch in range(epochs):
         print("=" * 10, "Epoch", epoch, "=" * 10)
         total_loss = 0
@@ -74,10 +74,9 @@ def train(model, train_data, val_data, epochs=3, batch_size=64, learning_rate=0.
 
         if val_dataloader is not None and log is not None:
             log.record(epoch=epoch, evaluator=val_evaluator, state='test', auto_write=True)
-        if total_loss < best_loss:
-            best_loss = total_loss
-
-        torch.save(model, SaveModel + save_model)
+            if best_acc < val_evaluator.acc:
+                best_acc = val_evaluator.acc
+                torch.save(model, SaveModel + save_model)
 
         scheduler.step(total_loss)
 

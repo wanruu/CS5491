@@ -48,21 +48,20 @@ def main():
 
     # ==============================================
 
-    # vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
     resnet = ResNet(model_choice=50)
-    # testmodel = Testmodel(class_num=classNumber)
     count_parameters(resnet)
 
     resnet.load_state_dict(torch.load(SaveModel + 'best_model.pt'))
 
-    # train(resnet, train_data,
-    #       epochs=epochs,
-    #       learning_rate=lr,
-    #       device=device,
-    #       loss_func=loss_func,
-    #       num_workers=2,
-    #       evaluator=train_evaluator,
-    #       log=log)
+    train(resnet, train_data, test_data,
+          epochs=epochs,
+          learning_rate=lr,
+          device=device,
+          loss_func=loss_func,
+          num_workers=2,
+          train_evaluator=train_evaluator,
+          val_evaluator=test_evaluator,
+          log=log)
 
     test(model=resnet,
          dataset=test_data,
