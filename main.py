@@ -63,12 +63,12 @@ def main():
           val_evaluator=test_evaluator,
           log=log)
 
-    test(model=resnet,
-         dataset=test_data,
-         device=device,
-         batch_size=64,
-         test_evaluater=test_evaluator,
-         log=log)
+    # test(model=resnet,
+    #      dataset=test_data,
+    #      device=device,
+    #      batch_size=64,
+    #      test_evaluater=test_evaluator,
+    #      log=log)
 
     # -----------------
 

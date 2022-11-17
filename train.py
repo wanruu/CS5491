@@ -70,7 +70,7 @@ def train(model, train_data, val_data, epochs=3, batch_size=64, learning_rate=0.
                        state='train',
                        auto_write=True)
 
-        _validation(model, criterion=loss_func, loader=val_data, evaluater=val_evaluator, device=device)
+        _validation(model, criterion=loss_func, loader=val_evaluator, evaluater=val_evaluator, device=device)
 
         if val_dataloader is not None and log is not None:
             log.record(epoch=epoch, evaluator=val_evaluator, state='test', auto_write=True)
