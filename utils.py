@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import torch
 
-
 def box(img, mask):
     if len(img.shape) == 2:
         new_img = np.zeros((img.shape[0], img.shape[1], 3))
@@ -96,7 +95,7 @@ def get_device():
 
 def score(state, evaluater, epoch=-1, loss=-1.):
     acc, recall, pre, f1, kappa = evaluater.analysis()
-    if state is 'test':
+    if state == 'test':
         print('|acc       : {}%'.format(acc * 100))
         print('|recall    : {}'.format(recall))
         print('|precision : {}'.format(pre))

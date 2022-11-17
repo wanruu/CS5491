@@ -11,11 +11,12 @@ import cv2 as cv
 
 class Raw_CUB_200_2011(Dataset):
 
-    def __init__(self, dataSetName, train=True, path=DataPath, shape=(384, 384)):
+    def __init__(self, dataSetName, train=True, path=DataPath, shape=(384, 384), Raw=True):
         super(Raw_CUB_200_2011, self).__init__()
         self.dataSetName = dataSetName
         self._FOR_TRAIN = train
         self._shape = shape
+        self.Raw = Raw
         self.path = path
         self.data_path = []
         self.data_label = []
@@ -40,13 +41,19 @@ class Raw_CUB_200_2011(Dataset):
                     self.data_path.append(a[1])
 
     def __getitem__(self, item):
-        img = imageio.imread(self.path + '/images/' + self.data_path[item])
-        mask = imageio.imread(MaskPath + '/' + self.data_path[item][:-3] + 'png')
-        img = box(img, mask)
-        img = cv.resize(img, self._shape)
-        data = torch.Tensor(img)
-        data = rearrange(data, "w h c -> c w h")
-        return data, torch.LongTensor([self.data_label[item]])
+        if self.Raw:
+            img = imageio.imread(self.path + '/images/' + self.data_path[item])
+            img = cv.resize(img, self._shape)
+            data = torch.Tensor(img)
+            data = rearrange(data, "w h c -> c w h")
+        else:
+            img = imageio.imread(self.path + '/images/' + self.data_path[item])
+            mask = imageio.imread(MaskPath + '/' + self.data_path[item][:-3] + 'png')
+            img = box(img, mask)
+            img = cv.resize(img, self._shape)
+            data = torch.Tensor(img)
+            data = rearrange(data, "w h c -> c w h")
+        return data, torch.LongTensor([self.data_label[item] - 1])
 
     def _build_new_dataset(self, shape):
         for i in range(len(self.data_path)):
@@ -95,18 +102,35 @@ class CUB_200_2011(Dataset):
         img = imageio.imread(self.path + '/images/' + self.data_path[item])
         data = torch.Tensor(img)
         data = rearrange(data, "w h c -> c w h")
-        return data, torch.LongTensor([self.data_label[item]])
+        return data, torch.LongTensor([self.data_label[item] - 1])
 
     def __len__(self):
         return len(self.data_label)
 
 
+class R(Dataset):
+    def __init__(self):
+        super(R, self).__init__()
+        self._list = [0] * 1000
+
+    def __getitem__(self, item):
+        data = torch.randn((3, 384, 384))
+        label = torch.tensor([0])
+        return data, label
+
+    def __len__(self):
+        return len(self._list)
+
+
 if __name__ == '__main__':
-    cub_train = Raw_CUB_200_2011(dataSetName='cub', train=True)
-    cub_test = Raw_CUB_200_2011(dataSetName='cub', train=False)
+    # cub_train = Raw_CUB_200_2011(dataSetName='cub', train=True)
+    # cub_test = Raw_CUB_200_2011(dataSetName='cub', train=False)
+    r = R()
+    data, label = r[0]
+    print(data.shape, label.shape)
 
     # cub_train._build_new_dataset(shape=(192, 192))
-    cub_test._build_new_dataset(shape=(192, 192))
+    # cub_test._build_new_dataset(shape=(192, 192))
     # data, label = cub[0]
     # cub._build_new_dataset(shape=(192, 192))
     # print(data.shape)
