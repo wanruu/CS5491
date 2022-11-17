@@ -1,4 +1,6 @@
-from model import VGG16, Testmodel
+import torch
+
+from model import VGG16, Testmodel, ResNet
 from train import train
 from test import test
 from utils import count_parameters, Log, get_device
@@ -27,14 +29,15 @@ epochs = 100
 lr = 1e-3
 loss_func = nn.CrossEntropyLoss()
 
+
 # |                                                          |
 # |                  hyper-parameter pool                    |
 # ------------------------------------------------------------
 
 
 def main():
-    train_data = CUB_200_2011('cub', train=True)
-    test_data = CUB_200_2011('cub', train=False)
+    train_data = CUB_200_2011('cub', train=True, shape=192)
+    test_data = CUB_200_2011('cub', train=False, shape=192)
 
     # ==============================================
 
@@ -46,18 +49,27 @@ def main():
     # ==============================================
 
     # vgg16 = VGG16(8, conv_paras, pool_paras, fc_paras)
-    testmodel = Testmodel(class_num=classNumber)
-    count_parameters(testmodel)
+    resnet = ResNet(model_choice=50)
+    # testmodel = Testmodel(class_num=classNumber)
+    count_parameters(resnet)
 
-    train(testmodel, train_data,
-          epochs = epochs,
-          learning_rate=lr,
-          device=device,
-          loss_func=loss_func,
-          num_workers=2,
-          evaluator=train_evaluator,
-          log=log)
-    test(model=testmodel, dataset=test_data, device=device, batch_size=64, test_evaluater=test_evaluator, log=log)
+    resnet.load_state_dict(torch.load(SaveModel + 'best_model.pt'))
+
+    # train(resnet, train_data,
+    #       epochs=epochs,
+    #       learning_rate=lr,
+    #       device=device,
+    #       loss_func=loss_func,
+    #       num_workers=2,
+    #       evaluator=train_evaluator,
+    #       log=log)
+
+    test(model=resnet,
+         dataset=test_data,
+         device=device,
+         batch_size=64,
+         test_evaluater=test_evaluator,
+         log=log)
 
     # -----------------
 

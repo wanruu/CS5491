@@ -1,5 +1,8 @@
 import imageio.v2 as imageio
 import numpy as np
+import pandas as pd
+from PIL.Image import Image
+
 from utils import box
 from einops import rearrange
 
@@ -7,6 +10,7 @@ from configuration import *
 import torch
 from torch.utils.data.dataset import Dataset
 import cv2 as cv
+from torch.utils.data import DataLoader
 
 
 class Raw_CUB_200_2011(Dataset):
@@ -70,7 +74,7 @@ class Raw_CUB_200_2011(Dataset):
 
 
 class CUB_200_2011(Dataset):
-    def __init__(self, dataSetName, train=True, path=DataPath, shape=(192, 192)):
+    def __init__(self, dataSetName, train=True, path=DataPath, shape=192):
         super(CUB_200_2011, self).__init__()
         self.dataSetName = dataSetName
         self._FOR_TRAIN = train
@@ -99,35 +103,50 @@ class CUB_200_2011(Dataset):
                     self.data_path.append(a[1])
 
     def __getitem__(self, item):
-        img = imageio.imread(self.path + '/images/' + self.data_path[item])
+
+        img = cv.imread(self.path + '/images/' + self.data_path[item])
         data = torch.Tensor(img)
+
+        for i in range(img.shape[0]):
+            for j in range(img.shape[1]):
+                for k in range(img.shape[2]):
+                    print(img[i, j, k], data[i][j][k])
+
         data = rearrange(data, "w h c -> c w h")
-        return data, torch.LongTensor([self.data_label[item] - 1])
+
+        label = int(self.path.split("/")[-2].split(".")[0])
+
+        return data, torch.LongTensor([label - 1])
 
     def __len__(self):
         return len(self.data_label)
 
 
-class R(Dataset):
-    def __init__(self):
-        super(R, self).__init__()
-        self._list = [0] * 1000
-
-    def __getitem__(self, item):
-        data = torch.randn((3, 384, 384))
-        label = torch.tensor([0])
-        return data, label
-
-    def __len__(self):
-        return len(self._list)
-
-
 if __name__ == '__main__':
-    # cub_train = Raw_CUB_200_2011(dataSetName='cub', train=True)
-    # cub_test = Raw_CUB_200_2011(dataSetName='cub', train=False)
-    r = R()
-    data, label = r[0]
-    print(data.shape, label.shape)
+    cub_train = CUB_200_2011(1)
+    cub_test = CUB_200_2011(0)
+
+    # img = np.array(cub_train[0][0])
+
+    # img =
+    # img = np.array(img)
+    # img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    # cv.imshow('ok', img)
+    # cv.waitKey(0)
+
+    train_data = DataLoader(cub_train, batch_size=1)
+
+    # for i in range(len(cub_train)[300:303]):
+    #     data, label = cub_train[i]
+    #
+    # for data, label in train_data:
+    #     print(label)
+    #     # data = rearrange(data[0], 'c w h -> w h c')
+    #     print(data.shape)
+    #     data = np.array(data[0])
+    #     # print(data)
+    #     cv.imshow('okokokok', np.uint8(data))
+    #     cv.waitKey(0)
 
     # cub_train._build_new_dataset(shape=(192, 192))
     # cub_test._build_new_dataset(shape=(192, 192))

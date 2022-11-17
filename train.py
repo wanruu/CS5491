@@ -7,8 +7,9 @@ from configuration import *
 from evaluate import evalMatrix
 
 
-def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu', loss_func=None, optimizer=None,
-          evaluator: evalMatrix = None, log=None, num_workers=2, save_model='best_model.pt'):
+def train(model, train_data, val_data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu', loss_func=None,
+          optimizer=None, train_evaluator: evalMatrix = None, val_evaluator: evalMatrix = None, log=None, num_workers=2,
+          save_model='best_model.pt'):
     """
     model: nn model
     data: each item is a tuple (image, label)
@@ -22,7 +23,10 @@ def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu'
         loss_func = nn.CrossEntropyLoss()
 
     # Split data into batches
-    dataloader = DataLoader(data, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=num_workers)
+    train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, drop_last=True,
+                                  num_workers=num_workers)
+    val_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, drop_last=True,
+                                num_workers=num_workers)
 
     # Optimizer
     if optimizer is None:
@@ -32,15 +36,15 @@ def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu'
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
 
     model.to(device)
-    model.train()
 
     # Start training
     best_loss = np.inf
     for epoch in range(epochs):
         print("=" * 10, "Epoch", epoch, "=" * 10)
         total_loss = 0
-        evaluator.clear()
-        for data, cls in tqdm.tqdm(dataloader):
+        train_evaluator.clear()
+        model.train()
+        for data, cls in tqdm.tqdm(train_dataloader):
             # for data, cls in dataloader:
             # zero the gradients
             data = data.to(device)
@@ -50,8 +54,8 @@ def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu'
             outputs = model(data)
             cls = torch.flatten(cls)
             loss = loss_func(outputs, cls)
-            if evaluator is not None:
-                evaluator.record(outputs, cls)
+            if train_evaluator is not None:
+                train_evaluator.record(outputs, cls)
             # backward
             loss.backward()
             # optimize
@@ -59,14 +63,36 @@ def train(model, data, epochs=3, batch_size=64, learning_rate=0.01, device='cpu'
             # statistics
             total_loss += loss.data.item()
 
-        print('avg_loss:', total_loss / (len(dataloader)))
+        print('avg_loss:', total_loss / (len(train_dataloader)))
 
-        if evaluator is not None and log is not None:
-            log.record(epoch=epoch, evaluator=evaluator, loss=float(total_loss) / len(dataloader), state='train',
+        if train_evaluator is not None and log is not None:
+            log.record(epoch=epoch, evaluator=train_evaluator, loss=float(total_loss) / len(train_dataloader),
+                       state='train',
                        auto_write=True)
 
+        _validation(model, criterion=loss_func, loader=val_data, evaluater=val_evaluator, device=device)
+
+        if val_dataloader is not None and log is not None:
+            log.record(epoch=epoch, evaluator=val_evaluator, state='test', auto_write=True)
         if total_loss < best_loss:
             best_loss = total_loss
-            torch.save(model, SaveModel + save_model)
+
+        torch.save(model, SaveModel + save_model)
 
         scheduler.step(total_loss)
+
+
+def _validation(model, criterion, loader, device, evaluater=None):
+    evaluater.clear()
+    model.eval()
+    epoch_loss_ = 0
+    with torch.no_grad():
+        for src, cls in tqdm.tqdm(loader, desc='test '):
+            src = src.to(device)
+            cls = cls.to(device)
+            output = model(src)
+            cls = torch.flatten(cls)
+            evaluater.record(output, cls)
+            loss = criterion(output, cls)
+            epoch_loss_ += loss.item()
+    return epoch_loss_ / len(loader)

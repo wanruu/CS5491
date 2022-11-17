@@ -5,6 +5,16 @@ import cv2 as cv
 import numpy as np
 import pandas as pd
 import torch
+from torch.nn import init
+
+
+def weight_init_kaiming(m):
+    class_names = m.__class__.__name__
+    if class_names.find('Conv') != -1:
+        init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
+    elif class_names.find('Linear') != -1:
+        init.kaiming_normal_(m.weight.data)
+
 
 def box(img, mask):
     if len(img.shape) == 2:
@@ -43,7 +53,7 @@ class Log:
                          'train_kappa',
                          'val_loss', 'val_acc', 'val_precision', 'val_recall', 'val_f1', 'val_kappa',
                          'test_acc', 'test_precision', 'test_recall', 'test_f1', 'test_kappa'],
-                index=[i for i in range(50)],
+                index=[i for i in range(3000)],
             )
         else:
             self.df_style = df_style
