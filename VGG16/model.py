@@ -18,7 +18,7 @@ def fc_relu_layer(in_chann, out_chann):
 
 
 class VGG16(nn.Module):
-    def __init__(self, class_num, conv_paras, pool_paras, fc_paras):
+    def __init__(self, class_num, conv_paras, pool_paras, fc_paras, dropout=0.5):
         """
         params conv_paras: a length-13 list of tuple for convolution layer. Each tuple is (in_chann, out_chann, kernerl_size, padding)
         params pool_paras: a length-5 list of tuple for max-pooling layer. Each tuple is (kernel_size, stride)
@@ -37,11 +37,11 @@ class VGG16(nn.Module):
         final_layer = nn.Linear(fc_paras[-1][1], class_num)
 
         # Connect layers
-        self.layer1 = nn.Sequential(conv_layers[0], conv_layers[1], pool_layers[0])
-        self.layer2 = nn.Sequential(conv_layers[2], conv_layers[3], pool_layers[1])
-        self.layer3 = nn.Sequential(conv_layers[4], conv_layers[5], conv_layers[6], pool_layers[2])
-        self.layer4 = nn.Sequential(conv_layers[7], conv_layers[8], conv_layers[9], pool_layers[3])
-        self.layer5 = nn.Sequential(conv_layers[10], conv_layers[11], conv_layers[12], pool_layers[4])
+        self.layer1 = nn.Sequential(conv_layers[0], conv_layers[1], pool_layers[0], nn.Dropout(dropout))
+        self.layer2 = nn.Sequential(conv_layers[2], conv_layers[3], pool_layers[1], nn.Dropout(dropout))
+        self.layer3 = nn.Sequential(conv_layers[4], conv_layers[5], conv_layers[6], pool_layers[2], nn.Dropout(dropout))
+        self.layer4 = nn.Sequential(conv_layers[7], conv_layers[8], conv_layers[9], pool_layers[3], nn.Dropout(dropout))
+        self.layer5 = nn.Sequential(conv_layers[10], conv_layers[11], conv_layers[12], pool_layers[4], nn.Dropout(dropout))
         self.layer6 = nn.Sequential(fc_layers[0], fc_layers[1])
         self.layer7 = final_layer
 

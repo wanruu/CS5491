@@ -7,17 +7,17 @@ from torch.utils.data.dataset import Dataset
 
 
 class MyDataset(Dataset):
-    """
-    MyDataset(train=True) for training data
-    MyDataset(train=False) for testing data
-    """
-    def __init__(self, train, img_shape, path):
+    """Dataset for CUB200"""
+    def __init__(self, train, img_shape, path, augments=[]):
         """
         params train    : True/False, whether to load training data.
         params img_shape: tuple, to resize image. e.g., (192, 192)
+        params augments : function list. [] - no augmentation
         """
         self.img_shape = img_shape
         self.path = path
+        self.augments = [[lambda x: x]] + augments
+
         # Read basic information about dataset.
         is_train_df = pd.read_csv(self.path + "train_test_split.txt", sep=" ", header=None, names=["idx", "is_train"])
         paths_df = pd.read_csv(self.path + "images.txt", sep=" ", header=None, names=["idx", "path"])
@@ -25,9 +25,16 @@ class MyDataset(Dataset):
         self.df = total_df[total_df.is_train==int(train)]
 
     def __getitem__(self, idx):
-        # Read image data from file, resize.
-        img_path = self.path + "images/" + self.df.iloc[idx, 2]
-        img = Image.open(img_path).resize(self.img_shape).convert("RGB")
+        img_idx = int(idx / len(self.augments))
+        augment_idx = idx % len(self.augments)
+        # Read image data from file
+        img_path = self.path + "images/" + self.df.iloc[img_idx, 2]
+        img = Image.open(img_path).convert("RGB")
+        # Image augmentation
+        for func in self.augments[augment_idx]:
+            img = func(img)
+        # Resize
+        img = img.resize(self.img_shape)
         # Convert image to tensor, reorder.
         img_tensor = torch.Tensor(np.array(img))
         img_tensor = rearrange(img_tensor, "w h c -> c w h")
@@ -38,4 +45,26 @@ class MyDataset(Dataset):
         return img_tensor, label_tensor
 
     def __len__(self):
-        return self.df.shape[0]
+        return self.df.shape[0] * len(self.augments)
+
+
+def img_rotate(angle: float):
+    def inner(img: Image):
+        return img.rotate(angle)
+    return inner
+
+
+def img_flip():
+    def inner(img: Image):
+        return img.transpose(Image.FLIP_LEFT_RIGHT)
+    return inner
+
+
+AUGMENT = [[img_rotate(15)], [img_rotate(-15)], [img_rotate(15), img_flip()], [img_rotate(-15), img_flip()]]
+
+
+if __name__ == "__main__":
+    from torch.utils.data import DataLoader    
+    DATA_PATH = "../../CUB_200_2011/CUB_200_2011/"
+    train_data = MyDataset(train=True, img_shape=(384, 384), path=DATA_PATH, augments=AUGMENT)
+    dataloader = DataLoader(train_data, batch_size=64, shuffle=True, num_workers=12)

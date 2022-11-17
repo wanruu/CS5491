@@ -10,8 +10,6 @@ def test(model_path, dataset, batch_size=64, use_gpu=False):
     params batch_size: int
     params use_gpu   : whether use gpu
     """
-    print("Start testing...")
-
     # Load data into batches
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=12)
     
@@ -20,6 +18,7 @@ def test(model_path, dataset, batch_size=64, use_gpu=False):
         model = torch.load(model_path, map_location=torch.device("cuda"))
     else:
         model = torch.load(model_path, map_location=torch.device("cpu"))
+    model.eval()
     
     # Start predicting
     top1_correct, top5_correct, total = 0, 0, 0
@@ -31,14 +30,14 @@ def test(model_path, dataset, batch_size=64, use_gpu=False):
         
         # Predict
         outputs = model(data)
-        
+
         # Real label
         labels = torch.flatten(labels) - 1
         
         # Metric 1: top 1 accuracy
         _, top1 = torch.max(outputs.data, 1)
         top1_correct += (top1 == labels).sum()
-        
+
         # Metric 2: top 5 accuracy
         _, top5 = torch.topk(outputs, 5, dim=1)
         top5_correct += sum([int(labels[idx] in top5[idx]) for idx in range(top5.shape[0])])
@@ -66,3 +65,8 @@ if __name__ == "__main__":
     
     # Testing
     test(args.path, dataset, batch_size=args.batch_size, use_gpu=torch.cuda.is_available())
+    
+    # for i in range(1,100,10):
+    #     print(f"============= {i} =============")
+    #     path = f"checkpoint/VGG16-epoch={i}.pkl"
+    #     test(path, dataset, batch_size=32, use_gpu=True)

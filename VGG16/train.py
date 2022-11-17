@@ -26,7 +26,6 @@ class EarlyStopping:
             self.flag = True
 
 
-# TODO: add validation
 def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_func=None, optimizer=None, early_stopping=None,
           use_gpu=False, save_path="/", save_intervals=50):
     """
@@ -43,8 +42,6 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
     params save_intervals: save model every _ epoches
     return: None
     """
-    print("Start training...")
-
     # Prepare
     if not loss_func:
         loss_func = nn.CrossEntropyLoss()
@@ -52,13 +49,13 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     if not early_stopping:
         early_stopping = EarlyStopping(patience=30, min_delta=0)
-    model_name = model.name if model.name else "NN"
+    model_name = model.name if model.name else "Unnamed"
 
     # Load data into batches
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=12)
 
     # Scheduler: to reduce learning rate
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True)
 
     # Use GPU
     if(use_gpu):
@@ -94,7 +91,7 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
         # Early stopping
         early_stopping(total_loss)
         if early_stopping.flag:
-            print(f"Early stop at epoch {epoch}")
+            print(f"Early stop at epoch {epoch}.")
             break
 
         # Save model every {save_intervals} epoch
@@ -103,6 +100,7 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
             torch.save(model, f"{save_path}/{model_name}-epoch={epoch}.pkl")
 
     # Save final model
+    print("Saving final model...")
     if use_gpu:
         model = model.cpu()
     torch.save(model, f"{save_path}/{model_name}.pkl")
