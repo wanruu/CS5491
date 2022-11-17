@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+use_gpu = torch.cuda.is_available()
 
 def train(model, data, epochs=300, batch_size=64, learning_rate=0.01, loss_func=None, optimizer=None):
     """
@@ -24,12 +25,19 @@ def train(model, data, epochs=300, batch_size=64, learning_rate=0.01, loss_func=
 
     # scheduler
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+    
+    if(use_gpu):
+        model = model.cuda()
+        loss_func = loss_func.cuda()
 
     # Start training
     for epoch in range(epochs):
         print("=" * 10, "Epoch", epoch, "=" * 10)
         total_loss = 0
         for data, label in tqdm(dataloader):
+            if(use_gpu):
+                data = data.cuda()
+                label = label.cuda()
             # zero the gradients
             optimizer.zero_grad()
             # forward
