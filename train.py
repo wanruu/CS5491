@@ -43,6 +43,7 @@ def train(model, train_data, val_data, epochs=3, batch_size=64, learning_rate=0.
         print("=" * 10, "Epoch", epoch, "=" * 10)
         total_loss = 0
         train_evaluator.clear()
+        val_evaluator.clear()
         model.train()
         for data, cls in tqdm.tqdm(train_dataloader):
             # for data, cls in dataloader:
@@ -70,10 +71,10 @@ def train(model, train_data, val_data, epochs=3, batch_size=64, learning_rate=0.
                        state='train',
                        auto_write=True)
 
-        _validation(model, criterion=loss_func, loader=val_evaluator, evaluater=val_evaluator, device=device)
+        _validation(model, criterion=loss_func, loader=val_dataloader, evaluater=val_evaluator, device=device)
 
         if val_dataloader is not None and log is not None:
-            log.record(epoch=epoch, evaluator=val_evaluator, state='test', auto_write=True)
+            log.record(epoch=epoch, evaluator=val_evaluator, loss=0, state='test', auto_write=True)
             if best_acc < val_evaluator.acc:
                 best_acc = val_evaluator.acc
                 torch.save(model, SaveModel + save_model)
