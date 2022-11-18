@@ -48,7 +48,7 @@ def test(model, dataset, batch_size=64, use_gpu=False):
 # For testing only.
 if __name__ == "__main__":
     from data import MyDataset
-    from model import VGG16
+    from model import VGG16, DFL_VGG16
     from config import *
 
     print("Initializing dataset...")
@@ -60,9 +60,10 @@ if __name__ == "__main__":
     # model.load_state_dict(torch.load(path))
     # test(model, dataset, batch_size=BATCH_SIZE, use_gpu=GPU)
     
-    for i in range(1,10,5):
+    for i in range(1,51,5):
         print(f"============= {i} =============")
-        path = f"VGG16-epoch={i}.pt"
-        model = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
+        path = f"checkpoint/aug_attempt2/DFL_VGG16-epoch={i}.pt"
+        vgg16 = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
+        model = DFL_VGG16(class_num=CLASS_NUM, k=K, vgg=vgg16, img_shape=(RESIZE, RESIZE))
         model.load_state_dict(torch.load(path))
         test(model, dataset, batch_size=BATCH_SIZE, use_gpu=GPU)
