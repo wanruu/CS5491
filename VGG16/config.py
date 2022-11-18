@@ -16,7 +16,13 @@ CONV = [
 tmp = int(RESIZE/32)
 FC = [(tmp * tmp * 512, 4096), (4096, 4096)]
 DROPOUT = 0.5
-MODEL_SAVE_PATH = "checkpoint/aug_attempt2/"
+
+import datetime
+import os
+MODEL_SAVE_PATH = f"checkpoint/{datetime.datetime.now()}"
+if not os.path.exists(MODEL_SAVE_PATH):
+    os.mkdir(MODEL_SAVE_PATH)
+
 MODEL_SAVE_INTERVALS = 5
 
 K = 10
