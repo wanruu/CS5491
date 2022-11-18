@@ -39,6 +39,9 @@ def main(model_name):
 
 
 
+if not os.path.exists(MODEL_SAVE_PATH):
+    os.mkdir(MODEL_SAVE_PATH)
+
 model_name = ["VGG16", "DFL_VGG16", "DFL_VGG16_Pre"][2]
 main(model_name)
 
