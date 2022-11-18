@@ -65,10 +65,10 @@ dfl_vgg16 = DFL_VGG16(class_num=CLASS_NUM, k=K, vgg=vgg16, img_shape=(RESIZE, RE
 # Training #
 # -------- #
 print("Start training...")
-train(dfl_vgg16, train_data, epochs=EPOCHS, batch_size=BATCH_SIZE, learning_rate=LEARNING_RATE, loss_func=None, optimizer=None, early_stopping=None, use_gpu=GPU, save_path=MODEL_SAVE_PATH, save_intervals=MODEL_SAVE_INTERVALS)
+dfl_vgg16 = train(dfl_vgg16, train_data, epochs=EPOCHS, batch_size=BATCH_SIZE, learning_rate=LEARNING_RATE, loss_func=None, optimizer=None, early_stopping=None, use_gpu=GPU, save_path=MODEL_SAVE_PATH, save_intervals=MODEL_SAVE_INTERVALS)
 
 # ------- #
 # Testing #
 # ------- #
 # print("Start testing...")
-# test(MODEL_SAVE_PATH + "VGG16.pkl", test_data, batch_size=BATCH_SIZE, use_gpu=GPU)
+test(dfl_vgg16, test_data, batch_size=BATCH_SIZE, use_gpu=GPU)

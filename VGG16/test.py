@@ -3,22 +3,19 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 
 
-def test(model_path, dataset, batch_size=64, use_gpu=False):
+def test(model, dataset, batch_size=64, use_gpu=False):
     """
     params model_path: "xxx.pkl"
     params dataset   : type of MyDataset
     params batch_size: int
     params use_gpu   : whether use gpu
     """
+    if use_gpu:
+        model = model.cuda()
+    model.eval()
+
     # Load data into batches
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=12)
-    
-    # Load model
-    if use_gpu:
-        model = torch.load(model_path, map_location=torch.device("cuda"))
-    else:
-        model = torch.load(model_path, map_location=torch.device("cpu"))
-    model.eval()
     
     # Start predicting
     top1_correct, top5_correct, total = 0, 0, 0
@@ -50,23 +47,38 @@ def test(model_path, dataset, batch_size=64, use_gpu=False):
 
 # For testing only.
 if __name__ == "__main__":
-    import argparse
     from data import MyDataset
+    from model import VGG16
     
-    # Parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--path", default="checkpoint/VGG16.pkl")
-    parser.add_argument("--batch_size", type=int, default=64)
-    args = parser.parse_args()
+    RESIZE = 192
+    DATA_PATH = "../../CUB_200_2011/CUB_200_2011/"
+    CLASS_NUM = 200
+    CONV = [
+        (3, 64), (64, 64),
+        (64, 128), (128, 128),
+        (128, 256), (256, 256), (256, 256),
+        (256, 512), (512, 512), (512, 512),
+        (512, 512), (512, 512), (512, 512),
+    ]
+    tmp = int(RESIZE/32)
+    FC = [(tmp * tmp * 512, 4096), (4096, 4096)]
+    DROPOUT = 0.5
+    BATCH_SIZE = 32
+    GPU = torch.cuda.is_available()
+
     
-    # Get data
     print("Initializing dataset...")
-    dataset = MyDataset(train=True, img_shape=(192, 192), path="../../CUB_200_2011/CUB_200_2011/")
+    dataset = MyDataset(train=False, img_shape=(RESIZE, RESIZE), path=DATA_PATH)
     
-    # Testing
-    # test(args.path, dataset, batch_size=args.batch_size, use_gpu=torch.cuda.is_available())
+    print("Loading model...")
+    # path = "checkpoint/VGG16.pt"
+    # model = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
+    # model.load_state_dict(torch.load(path))
+    # test(model, dataset, batch_size=BATCH_SIZE, use_gpu=GPU)
     
-    for i in range(1,50,5):
+    for i in range(1,10,5):
         print(f"============= {i} =============")
-        path = f"checkpoint/aug_attempt1/VGG16-epoch={i}.pkl"
-        test(path, dataset, batch_size=32, use_gpu=True)
+        path = f"VGG16-epoch={i}.pt"
+        model = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
+        model.load_state_dict(torch.load(path))
+        test(model, dataset, batch_size=BATCH_SIZE, use_gpu=GPU)

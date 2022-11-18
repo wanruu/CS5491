@@ -95,11 +95,12 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
         # Save model every {save_intervals} epoch
         if epoch % save_intervals == 1:
             print("Saving model...")
-            torch.save(model, f"{save_path}/{model_name}-epoch={epoch}.pkl")
+            torch.save(model.state_dict(), f"{save_path}/{model_name}-epoch={epoch}.pt")
 
     # Save final model
     print("Saving final model...")
     if use_gpu:
         model = model.cpu()
-    torch.save(model, f"{save_path}/{model_name}.pkl")
+    torch.save(model.state_dict(), f"{save_path}/{model_name}.pt")
 
+    return model
