@@ -1,4 +1,7 @@
+import os
 import torch
+import datetime
+
 
 # Data
 RESIZE = 192
@@ -16,7 +19,7 @@ CONV = [
 tmp = int(RESIZE/32)
 FC = [(tmp * tmp * 512, 4096), (4096, 4096)]
 DROPOUT = 0.5
-
+MODEL_SAVE_PATH = f"checkpoint/{datetime.datetime.now()}"
 MODEL_SAVE_INTERVALS = 5
 
 K = 10
@@ -27,8 +30,19 @@ BATCH_SIZE = 32
 LEARNING_RATE = 0.01
 GPU = torch.cuda.is_available()
 
-print(f"RESIZE={RESIZE}, DATA_PATH={DATA_PATH}")
-print(f"CLASS_NUM={CLASS_NUM}, CONV={CONV}, FC={FC}, DROPOUT={DROPOUT}")
-print(f"EPOCHS={EPOCHS}, BATCH_SIZE={BATCH_SIZE}, LEARNING_RATE={LEARNING_RATE}, GPU={GPU}")
 
+
+if not os.path.exists(MODEL_SAVE_PATH):
+    os.mkdir(MODEL_SAVE_PATH)
+
+print(f"RESIZE={RESIZE}")
+print(f"CLASS_NUM={CLASS_NUM}")
+print(f"CONV={CONV}")
+print(f"FC={FC}")
+print(f"DROPOUT={DROPOUT}")
+print(f"EPOCHS={EPOCHS}")
+print(f"BATCH_SIZE={BATCH_SIZE}")
+print(f"LEARNING_RATE={LEARNING_RATE}")
+print(f"GPU={GPU}")
 print(f"K={K}")
+print()

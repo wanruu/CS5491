@@ -64,7 +64,9 @@ AUGMENT = [[img_rotate(15)], [img_rotate(-15)], [img_rotate(15), img_flip()], [i
 
 
 if __name__ == "__main__":
-    from torch.utils.data import DataLoader    
-    DATA_PATH = "../../CUB_200_2011/CUB_200_2011/"
+    from torch.utils.data import DataLoader
+    from config import *
+
     train_data = MyDataset(train=True, img_shape=(384, 384), path=DATA_PATH, augments=AUGMENT)
     dataloader = DataLoader(train_data, batch_size=64, shuffle=True, num_workers=12)
+
