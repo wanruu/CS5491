@@ -17,25 +17,18 @@ tmp = int(RESIZE/32)
 FC = [(tmp * tmp * 512, 4096), (4096, 4096)]
 DROPOUT = 0.5
 
-import datetime
-import os
-MODEL_SAVE_PATH = f"checkpoint/{datetime.datetime.now()}"
-if not os.path.exists(MODEL_SAVE_PATH):
-    os.mkdir(MODEL_SAVE_PATH)
-
 MODEL_SAVE_INTERVALS = 5
 
 K = 10
 
 # Training & Testing
-EPOCHS = 100
+EPOCHS = 200
 BATCH_SIZE = 32
 LEARNING_RATE = 0.01
 GPU = torch.cuda.is_available()
 
 print(f"RESIZE={RESIZE}, DATA_PATH={DATA_PATH}")
 print(f"CLASS_NUM={CLASS_NUM}, CONV={CONV}, FC={FC}, DROPOUT={DROPOUT}")
-print(f"MODEL_SAVE_PATH={MODEL_SAVE_PATH}, MODEL_SAVE_INTERVALS={MODEL_SAVE_INTERVALS}")
 print(f"EPOCHS={EPOCHS}, BATCH_SIZE={BATCH_SIZE}, LEARNING_RATE={LEARNING_RATE}, GPU={GPU}")
 
 print(f"K={K}")

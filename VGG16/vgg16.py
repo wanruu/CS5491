@@ -6,6 +6,11 @@ from test import test
 from data import MyDataset, AUGMENT
 from config import *
 
+import datetime
+import os
+MODEL_SAVE_PATH = f"checkpoint/{datetime.datetime.now()}"
+if not os.path.exists(MODEL_SAVE_PATH):
+    os.mkdir(MODEL_SAVE_PATH)
 
 # --------- #
 # Init data #

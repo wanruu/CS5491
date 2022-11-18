@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from model import VGG16, DFL_VGG16
-from train import train, train_dfl
-from test import test, test_dfl
+from model import DFL_VGG16_PRE
+from train import train_dfl
+from test import test_dfl
 from data import MyDataset, AUGMENT
 from config import *
 
@@ -25,11 +25,7 @@ test_data = MyDataset(train=False, img_shape=(RESIZE, RESIZE), path=DATA_PATH, a
 # Initialize model #
 # ---------------- #
 print("Initializing DFL-VGG16...")
-vgg16 = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
-# vgg16.load_state_dict(torch.load(VGG16_PATH))
-# for param_tensor in vgg16.state_dict():
-#     print(param_tensor, "\t", vgg16.state_dict()[param_tensor].size())
-dfl_vgg16 = DFL_VGG16(class_num=CLASS_NUM, k=K, vgg=vgg16, img_shape=(RESIZE, RESIZE))
+dfl_vgg16 = DFL_VGG16_PRE(class_num=CLASS_NUM, k=K)
 
 
 # -------- #
