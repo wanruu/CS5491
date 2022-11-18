@@ -89,7 +89,7 @@ class DFL_VGG16(nn.Module):
         # P-Stream: mid
         conv4_chann_out = vgg.conv_paras[9][1]
         self.conv6 = conv6 = nn.Conv2d(conv4_chann_out, k*class_num, kernel_size=1, stride=1)  # filters grouped into {class_num}, out = kM*H*W
-        self.pool6 = nn.MaxPool2d(kernel_size=img_shape, stride=img_shape)  # out = kM*1*1
+        self.pool6 = nn.MaxPool2d(kernel_size=12, stride=12)  # out = kM*1*1
         self.p_fc_layers = nn.Sequential(
             nn.Conv2d(k*class_num, class_num, kernel_size=1, stride=1),
             nn.AdaptiveAvgPool2d((1,1)),
@@ -100,28 +100,29 @@ class DFL_VGG16(nn.Module):
 
 
     def forward(self, x):
-        batch_size = x.size(0)
+        batch_size = x.size(0)  # 32
 
         # Feature extraction
-        conv1_4 = self.conv1_4(x)
+        conv1_4 = self.conv1_4(x)  # [32, 512, 12, 12]
 
         # G-stream
         g = self.layer5(conv1_4)
         g = self.g_fc_layers(g)
-        g = g.view(batch_size, -1)
+        g = g.view(batch_size, -1)  # [32, 200]
 
         # P-stream
-        p = self.conv6(conv1_4)
-        p_inter = self.pool6(p)
+        p = self.conv6(conv1_4)  # [32, 2000, 12, 12]
+        p_inter = self.pool6(p)  # [32, 2000, 1, 1]
         p = self.p_fc_layers(p_inter)
-        p = p.view(batchsize, -1)
+        p = p.view(batch_size, -1)
 
         # Side-branch
-        side = p_inter.view(batchsize, -1, self.k*self.class_num)
+        side = p_inter.view(batch_size, -1, self.k*self.class_num)
         side = self.cross_channel_pool(side)
-        side = side.view(batchsize, -1)
-        print(g.size, p.size, side.size)
-        return g, p, side
+        side = side.view(batch_size, -1)
+        # [32, 200]
+
+        return g + p + 0.1 * side
 
 
 
