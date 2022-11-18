@@ -128,21 +128,9 @@ class DFL_VGG16(nn.Module):
 # For testing only.
 if __name__ == "__main__":
     import torch
-    
-    RESIZE = 192
-    CLASS_NUM = 200
-    CONV = [
-        (3, 64), (64, 64),
-        (64, 128), (128, 128),
-        (128, 256), (256, 256), (256, 256),
-        (256, 512), (512, 512), (512, 512),
-        (512, 512), (512, 512), (512, 512),
-    ]
-    tmp = int(RESIZE/32)
-    FC = [(tmp * tmp * 512, 4096), (4096, 4096)]
-    DROPOUT = 0.5
-    vgg16 = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
+    from config import *
 
+    vgg16 = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
     dfl_vgg16 = DFL_VGG16(class_num=CLASS_NUM, k=10, vgg=vgg16, img_shape=(RESIZE, RESIZE))
 
 

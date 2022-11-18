@@ -52,6 +52,7 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
     if(use_gpu):
         model = model.cuda()
         loss_func = loss_func.cuda()
+    model.train()
 
     # Load data into batches
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=12)    

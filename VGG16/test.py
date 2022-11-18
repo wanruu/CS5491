@@ -49,24 +49,8 @@ def test(model, dataset, batch_size=64, use_gpu=False):
 if __name__ == "__main__":
     from data import MyDataset
     from model import VGG16
-    
-    RESIZE = 192
-    DATA_PATH = "../../CUB_200_2011/CUB_200_2011/"
-    CLASS_NUM = 200
-    CONV = [
-        (3, 64), (64, 64),
-        (64, 128), (128, 128),
-        (128, 256), (256, 256), (256, 256),
-        (256, 512), (512, 512), (512, 512),
-        (512, 512), (512, 512), (512, 512),
-    ]
-    tmp = int(RESIZE/32)
-    FC = [(tmp * tmp * 512, 4096), (4096, 4096)]
-    DROPOUT = 0.5
-    BATCH_SIZE = 32
-    GPU = torch.cuda.is_available()
+    from config import *
 
-    
     print("Initializing dataset...")
     dataset = MyDataset(train=False, img_shape=(RESIZE, RESIZE), path=DATA_PATH)
     
