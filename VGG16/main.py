@@ -10,15 +10,15 @@ from model.dfl_vgg16_pre import DFL_VGG16_Pre
 
 from train import train
 from test import test
-from data import MyDataset, AUGMENT
+from data import MyDataset
 from config import *
 
 
 
-def main(model_name, arguments):
+def main(model_name):
     print("Initializing dataset...")
-    train_data = MyDataset(train=True, img_shape=(RESIZE, RESIZE), path=DATA_PATH, augments=arguments)
-    test_data = MyDataset(train=False, img_shape=(RESIZE, RESIZE), path=DATA_PATH, augments=[])
+    train_data = MyDataset(train=True, path=DATA_PATH, transform=TRAIN_TRANS)
+    test_data = MyDataset(train=False, path=DATA_PATH, transform=TEST_TRANS)
 
     print(f"Initializing {model_name}...")
     if model_name == "VGG16":
@@ -39,9 +39,8 @@ def main(model_name, arguments):
 
 
 
-model_name = ["VGG16", "DFL_VGG16", "DFL_VGG16_Pre"][0]
-augments = AUGMENT
-main(model_name, augments)
+model_name = ["VGG16", "DFL_VGG16", "DFL_VGG16_Pre"][2]
+main(model_name)
 
 
 if not os.listdir(MODEL_SAVE_PATH):

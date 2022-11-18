@@ -1,7 +1,7 @@
 import os
 import torch
 import datetime
-
+from torchvision import transforms
 
 # Data
 RESIZE = 192
@@ -20,6 +20,8 @@ tmp = int(RESIZE/32)
 FC = [(tmp * tmp * 512, 4096), (4096, 4096)]
 DROPOUT = 0.5
 MODEL_SAVE_PATH = f"checkpoint/{datetime.datetime.now()}"
+if not os.path.exists(MODEL_SAVE_PATH):
+    os.mkdir(MODEL_SAVE_PATH)
 MODEL_SAVE_INTERVALS = 5
 
 K = 10
@@ -31,9 +33,23 @@ LEARNING_RATE = 0.01
 GPU = torch.cuda.is_available()
 
 
+# Transformer
+TRAIN_TRANS = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.RandomResizedCrop(RESIZE),
+    transforms.RandomHorizontalFlip(),
+    transforms.Normalize(mean=(0.485, 0.456, 0.406),
+                         std=(0.229, 0.224, 0.225))
+])
+TEST_TRANS = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Resize(int(RESIZE/0.875)),
+    transforms.CenterCrop(RESIZE),
+    transforms.Normalize(mean=(0.485, 0.456, 0.406),
+                         std=(0.229, 0.224, 0.225))
+])
 
-if not os.path.exists(MODEL_SAVE_PATH):
-    os.mkdir(MODEL_SAVE_PATH)
+
 
 print(f"RESIZE={RESIZE}")
 print(f"CLASS_NUM={CLASS_NUM}")

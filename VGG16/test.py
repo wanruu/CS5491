@@ -62,7 +62,7 @@ if __name__ == "__main__":
     from config import *
 
 
-    dataset = MyDataset(train=False, img_shape=(RESIZE, RESIZE), path=DATA_PATH)
+    dataset = MyDataset(train=False, path=DATA_PATH, transform=TEST_TRANS)
     
     # path = "checkpoint/VGG16.pt"
     # model = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
