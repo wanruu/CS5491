@@ -8,7 +8,7 @@ from torch.utils.data.dataset import Dataset
 
 class MyDataset(Dataset):
     """Dataset for CUB200"""
-    def __init__(self, train, path, transform=None):
+    def __init__(self, train, path, masked=False, transform=None):
         """
         params train    : True/False, whether to load training data.
         params img_shape: tuple, to resize image. e.g., (192, 192)
@@ -16,6 +16,7 @@ class MyDataset(Dataset):
         """
         self.path = path
         self.transform = transform
+        self.masked = masked
 
         # Read basic information about dataset.
         is_train_df = pd.read_csv(self.path + "train_test_split.txt", sep=" ", header=None, names=["idx", "is_train"])
@@ -25,7 +26,10 @@ class MyDataset(Dataset):
 
     def __getitem__(self, idx):
         # Read image data from file
-        img_path = self.path + "images/" + self.df.iloc[idx, 2]
+        if self.masked:
+            img_path = self.path + "masked_images/" + self.df.iloc[idx, 2]
+        else:
+            img_path = self.path + "images/" + self.df.iloc[idx, 2]
         
         # Image
         img = Image.open(img_path).convert("RGB")
@@ -49,7 +53,7 @@ if __name__ == "__main__":
     from config import *
 
 
-    train_data = MyDataset(train=True, path=DATA_PATH, transform=TRAIN_TRANS)
+    train_data = MyDataset(train=True, path=DATA_PATH, masked=True, transform=TRAIN_TRANS)
     dataloader = DataLoader(train_data, batch_size=1, shuffle=True, num_workers=0)
     for img, label in dataloader:
         print(label)

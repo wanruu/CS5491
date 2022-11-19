@@ -15,9 +15,9 @@ from config import *
 
 
 
-def main(model_name):
+def main(model_name, masked):
     print("Initializing dataset...")
-    train_data = MyDataset(train=True, path=DATA_PATH, transform=TRAIN_TRANS)
+    train_data = MyDataset(train=True, path=DATA_PATH, masked=masked, transform=TRAIN_TRANS)
     test_data = MyDataset(train=False, path=DATA_PATH, transform=TEST_TRANS)
 
     print(f"Initializing {model_name}...")
@@ -42,8 +42,9 @@ def main(model_name):
 if not os.path.exists(MODEL_SAVE_PATH):
     os.mkdir(MODEL_SAVE_PATH)
 
-model_name = ["VGG16", "DFL_VGG16", "DFL_VGG16_Pre"][2]
-main(model_name)
+masked = True
+model_name = ["VGG16", "DFL_VGG16", "DFL_VGG16_Pre"][1]
+main(model_name, masked)
 
 
 if not os.listdir(MODEL_SAVE_PATH):
