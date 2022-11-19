@@ -20,7 +20,7 @@ tmp = int(RESIZE/32)
 FC = [(tmp * tmp * 512, 4096), (4096, 4096)]
 DROPOUT = 0.3
 MODEL_SAVE_PATH = f"checkpoint/{datetime.datetime.now()}"
-MODEL_SAVE_INTERVALS = 10
+MODEL_SAVE_INTERVALS = 20
 
 K = 10
 

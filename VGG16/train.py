@@ -54,6 +54,14 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
         model = model.cuda()
         loss_func = loss_func.cuda()
     model.train()
+    
+    # Freeze
+    if model.name == "DFL_VGG16_Unrandom":
+        print("Freeze conv6.")
+        for name, param in model.named_parameters():
+            if "conv6" in name:
+                param.requires_grad = False
+                break
 
     # Load data into batches.
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=12)    
@@ -61,6 +69,14 @@ def train(model, dataset, epochs=300, batch_size=64, learning_rate=0.01, loss_fu
     # Start training by epoch.
     for epoch in range(epochs):
         print("=" * 10, "Epoch", epoch, "=" * 10)
+                    
+        # Freeze
+        if model.name == "DFL_VGG16_Unrandom" and epoch == 100:
+            print("Unfreeze conv6.")
+            for name, param in model.named_parameters():
+                if "conv6" in name:
+                    param.requires_grad = True
+                    break
 
         total_loss = 0
         top1_correct, total = 0, 0
