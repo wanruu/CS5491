@@ -15,10 +15,14 @@ from config import *
 
 
 
-def main(model_name, masked):
+def main(model_name, masked, aug):
     print("Initializing dataset...")
-    train_data = MyDataset(train=True, path=DATA_PATH, masked=masked, transform=TRAIN_TRANS)
-    test_data = MyDataset(train=False, path=DATA_PATH, transform=TEST_TRANS)
+    if aug:
+        train_data = MyDataset(train=True, path=DATA_PATH, masked=masked, transform=TRAIN_TRANS)
+        test_data = MyDataset(train=False, path=DATA_PATH, transform=TEST_TRANS)
+    else:
+        train_data = MyDataset(train=True, path=DATA_PATH, masked=masked, transform=TRANS_NO_AUG)
+        test_data = MyDataset(train=False, path=DATA_PATH, transform=TRANS_NO_AUG)
 
     print(f"Initializing {model_name}...")
     if model_name == "VGG16":
@@ -50,8 +54,9 @@ if not os.path.exists(MODEL_SAVE_PATH):
 
 
 masked = False
-model_name = ["VGG16", "DFL_VGG16", "DFL_VGG16_Pre", "DFL_VGG16_Unrandom"][3]
-main(model_name, masked)
+aug = False
+model_name = ["VGG16", "DFL_VGG16", "DFL_VGG16_Pre", "DFL_VGG16_Unrandom"][0]
+main(model_name, masked, aug)
 
 
 if not os.listdir(MODEL_SAVE_PATH):

@@ -47,6 +47,10 @@ TEST_TRANS = transforms.Compose([
                          std=(0.229, 0.224, 0.225))
 ])
 
+TRANS_NO_AUG = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Resize([RESIZE, RESIZE])
+])
 
 
 print(f"RESIZE={RESIZE}")
