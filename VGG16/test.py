@@ -64,11 +64,13 @@ if __name__ == "__main__":
 
     dataset = MyDataset(train=False, path=DATA_PATH, masked=True, transform=TEST_TRANS)
     
-    path = "checkpoint/2022-11-19 14:45:09.608551/DFL_VGG16.pt"
-    vgg16 = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
-    model = DFL_VGG16(class_num=CLASS_NUM, k=K, vgg=vgg16)
+    # path = "checkpoint/2022-11-19 14:45:09.608551/DFL_VGG16.pt"
+    path = "checkpoint/DFL_VGG16(aug+pretrained).pt"
+    # vgg16 = VGG16(CLASS_NUM, CONV, FC, DROPOUT)
+    # model = DFL_VGG16(class_num=CLASS_NUM, k=K, vgg=vgg16)
+    model = DFL_VGG16_Pre(class_num=CLASS_NUM, k=K)
     model.load_state_dict(torch.load(path))
-    test(model, dataset, batch_size=BATCH_SIZE, use_gpu=GPU)
+    # test(model, dataset, batch_size=BATCH_SIZE, use_gpu=GPU)
 
     # for i in range(0,331,10):
     #     print(f"============= {i} =============")
@@ -78,5 +80,11 @@ if __name__ == "__main__":
     #     # model = DFL_VGG16_Pre(class_num=CLASS_NUM, k=K)
     #     model.load_state_dict(torch.load(path))
     #     test(model, dataset, batch_size=BATCH_SIZE, use_gpu=GPU)
+
+
+
+    temp = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f'\nThe model has {temp:,} trainable parameters')
+
 
 
